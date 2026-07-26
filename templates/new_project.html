@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}New Project - Viva Prep AI{% endblock %}
+
+{% block content %}
+<!-- Loading Overlay (hidden by default) -->
+<div id="loading-overlay" class="d-none">
+    <div class="spinner-border spinner-glow mb-4" role="status" style="color: var(--accent-primary);">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <h3 class="fw-bold mb-2" id="loading-title" style="color: var(--text-primary);">Analyzing Project Details</h3>
+    <p class="text-secondary text-center px-3" style="max-width: 450px;" id="loading-desc">
+        Our AI external examiner is generating project-specific viva questions based on your description and tech stack. Please wait...
+    </p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <!-- Page heading + subtitle above the card -->
+        <div class="mb-4">
+            <a href="{{ url_for('dashboard') }}" class="text-gradient fw-semibold text-decoration-none d-inline-flex align-items-center gap-1 mb-2">
+                <i class="bi bi-chevron-left"></i> Back to Dashboard
+            </a>
+            <h2 class="fw-bold mb-1" style="color: var(--text-primary);">Add New Project</h2>
+            <p class="text-secondary small">Provide your FYP/thesis details to generate exam questions.</p>
+        </div>
+        
+        <div class="card premium-card border-0">
+            <div class="card-body p-0">
+                <form action="{{ url_for('new_project') }}" method="POST" id="project-form" class="needs-validation" novalidate>
+                    <!-- Title field stacked vertically -->
+                    <div class="mb-3">
+                        <label for="title" class="form-label text-muted-custom small">Project Title</label>
+                        <input type="text" class="form-control" id="title" name="title" placeholder="e.g. Decentralized Health Records System" required>
+                    </div>
+                    
+                    <!-- Category dropdown + Quick Tags pills side by side -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="domain" class="form-label text-muted-custom small fw-semibold">Category / Domain</label>
+                            <select class="form-select" id="domain" name="domain" required>
+                                <option value="" disabled selected>Select a domain...</option>
+                                <option value="Web Development">Web Development / Full Stack</option>
+                                <option value="Mobile Development">Mobile Development</option>
+                                <option value="Artificial Intelligence">Artificial Intelligence / Machine Learning</option>
+                                <option value="Blockchain & Crypto">Blockchain & Cryptocurrencies</option>
+                                <option value="Cloud & DevOps">Cloud Computing & DevOps</option>
+                                <option value="Cybersecurity">Cybersecurity & Networks</option>
+                                <option value="Internet of Things">Internet of Things (IoT)</option>
+                                <option value="Data Science">Data Science & Analytics</option>
+                                <option value="AR/VR & Games">AR/VR & Game Development</option>
+                                <option value="General IT">Other / General IT</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted-custom small fw-semibold">Quick Tags</label>
+                            <div class="d-flex flex-wrap gap-2 mt-1" id="quick-tags-container">
+                                <button type="button" class="badge border py-2 px-3 small quick-tag-btn" style="background-color: #ECEAE6; color: var(--text-secondary); border-color: var(--border-color) !important; cursor: pointer; transition: all 0.2s;" data-tag="React">React</button>
+                                <button type="button" class="badge border py-2 px-3 small quick-tag-btn" style="background-color: #ECEAE6; color: var(--text-secondary); border-color: var(--border-color) !important; cursor: pointer; transition: all 0.2s;" data-tag="Python">Python</button>
+                                <button type="button" class="badge border py-2 px-3 small quick-tag-btn" style="background-color: #ECEAE6; color: var(--text-secondary); border-color: var(--border-color) !important; cursor: pointer; transition: all 0.2s;" data-tag="Flask">Flask</button>
+                                <button type="button" class="badge border py-2 px-3 small quick-tag-btn" style="background-color: #ECEAE6; color: var(--text-secondary); border-color: var(--border-color) !important; cursor: pointer; transition: all 0.2s;" data-tag="MySQL">MySQL</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tech Stack stacked vertically -->
+                    <div class="mb-3">
+                        <label for="tech_stack" class="form-label text-muted-custom small fw-semibold">Tech Stack (comma separated)</label>
+                        <input type="text" class="form-control" id="tech_stack" name="tech_stack" placeholder="e.g. Ethereum, Solidity, Python, Flask, React" required>
+                        <div class="form-text text-muted-custom">List the key languages, databases, libraries, and frameworks.</div>
+                    </div>
+                    
+                    <!-- Notes / Description stacked vertically -->
+                    <div class="mb-4">
+                        <label for="description" class="form-label text-muted-custom small fw-semibold">Notes / Project Description (min. 50 characters)</label>
+                        <textarea class="form-control" id="description" name="description" rows="6" placeholder="Describe the problem, your solution, architectural details, and key implementation strategies. The more detailed, the better the generated questions will be." minlength="50" required></textarea>
+                    </div>
+                    
+                    <!-- Highlighted tip box above submit button with sparkle icon -->
+                    <div class="p-3 mb-4 rounded-3" style="background-color: rgba(232, 131, 108, 0.08); border: 1px solid rgba(232, 131, 108, 0.15);">
+                        <div class="d-flex gap-2.5 align-items-center">
+                            <i class="bi bi-sparkles text-gradient fs-5"></i>
+                            <div>
+                                <p class="text-secondary small mb-0"><strong>Pro Tip:</strong> Our AI uses your description and tech stack to construct target questions regarding design trade-offs, limits, and alternatives. A thorough description results in high-yield practice questions!</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cancel (text link style) and primary submit button aligned to the bottom right -->
+                    <div class="d-flex justify-content-end align-items-center gap-4">
+                        <a href="{{ url_for('dashboard') }}" class="text-secondary text-decoration-none small fw-semibold hover-opacity">Cancel</a>
+                        <button type="submit" class="btn btn-primary py-2.5 px-4 fw-semibold">
+                            <i class="bi bi-robot me-1"></i> Generate Questions
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation and loading indicator
+(function () {
+    'use strict'
+    
+    const form = document.getElementById('project-form')
+    const overlay = document.getElementById('loading-overlay')
+    const loadingTitle = document.getElementById('loading-title')
+    const loadingDesc = document.getElementById('loading-desc')
+    
+    const loadingMessages = [
+        { title: "Analyzing Project Details", desc: "Reading through your description and parsing your tech stack..." },
+        { title: "Reviewing Technical Complexity", desc: "Checking key architectural frameworks and potential security concerns..." },
+        { title: "Drafting Viva Questions", desc: "Formulating examiner questions about alternatives, limits, and justification..." },
+        { title: "Polishing Viva Practice Session", desc: "Writing final questions specific to your application context. Almost ready..." }
+    ]
+    
+    let messageIndex = 0
+    let messageInterval
+    
+    form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+            form.classList.add('was-validated')
+        } else {
+            // Show loading spinner overlay
+            overlay.classList.remove('d-none')
+            overlay.classList.add('d-flex')
+            
+            // Cycle through helpful messages to improve user experience
+            messageInterval = setInterval(() => {
+                messageIndex = (messageIndex + 1) % loadingMessages.length
+                loadingTitle.textContent = loadingMessages[messageIndex].title
+                loadingDesc.textContent = loadingMessages[messageIndex].desc
+            }, 3000)
+        }
+    }, false)
+    
+    // Quick tags toggling and appending to Tech Stack
+    document.querySelectorAll('.quick-tag-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.classList.toggle('active-tag');
+            const techInput = document.getElementById('tech_stack');
+            const tag = this.getAttribute('data-tag');
+            let currentVal = techInput.value.trim();
+            
+            if (this.classList.contains('active-tag')) {
+                this.style.backgroundColor = 'rgba(232, 131, 108, 0.15)';
+                this.style.color = 'var(--accent-primary)';
+                this.style.borderColor = 'var(--accent-primary)';
+                
+                // Add tag
+                if (currentVal) {
+                    const existingTags = currentVal.split(',').map(s => s.trim());
+                    if (!existingTags.includes(tag)) {
+                        techInput.value = currentVal + ', ' + tag;
+                    }
+                } else {
+                    techInput.value = tag;
+                }
+            } else {
+                this.style.backgroundColor = '#ECEAE6';
+                this.style.color = 'var(--text-secondary)';
+                this.style.borderColor = 'var(--border-color)';
+                
+                // Remove tag
+                if (currentVal) {
+                    const newTags = currentVal.split(',')
+                        .map(s => s.trim())
+                        .filter(s => s !== tag && s !== '');
+                    techInput.value = newTags.join(', ');
+                }
+            }
+        });
+    });
+})()
+</script>
+{% endblock %}

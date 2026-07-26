@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - Viva Prep AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-md-5">
+        <div class="card premium-card border-0">
+            <div class="card-body p-0">
+                <div class="text-center mb-4">
+                    <!-- Logo icon in a rounded square badge -->
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-3 p-3 mb-3" style="background-color: var(--accent-primary); width: 60px; height: 60px; color: #FFFFFF; box-shadow: 0 4px 12px var(--accent-glow);">
+                        <i class="bi bi-hexagon-fill fs-3"></i>
+                    </div>
+                    <!-- App name and tagline below it -->
+                    <h2 class="card-title fw-bold mb-1" style="color: var(--text-primary);">Viva Prep AI</h2>
+                    <p class="text-secondary small">Start your FYP viva preparation journey</p>
+                </div>
+                
+                <form action="{{ url_for('signup') }}" method="POST" class="needs-validation" novalidate>
+                    <!-- Full name field with icon inside input -->
+                    <div class="mb-3">
+                        <label for="name" class="form-label text-muted-custom small">Full Name</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-person input-icon-left"></i>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="John Doe" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Email address field with icon inside input -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label text-muted-custom small">Email Address</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-envelope input-icon-left"></i>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="john@example.com" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Password field with lock icon inside and show/hide eye icon on the right -->
+                    <div class="mb-3">
+                        <label for="password" class="form-label text-muted-custom small">Password (Min. 6 characters)</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-lock input-icon-left"></i>
+                            <input type="password" class="form-control has-right-icon" id="password" name="password" minlength="6" placeholder="••••••••" required>
+                            <button type="button" class="input-icon-right toggle-password-btn" data-target="password">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Confirm password field with lock icon inside and show/hide eye icon on the right -->
+                    <div class="mb-4">
+                        <label for="confirm_password" class="form-label text-muted-custom small">Confirm Password</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-lock-fill input-icon-left"></i>
+                            <input type="password" class="form-control has-right-icon" id="confirm_password" name="confirm_password" minlength="6" placeholder="••••••••" required>
+                            <button type="button" class="input-icon-right toggle-password-btn" data-target="confirm_password">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Primary button full-width, solid coral -->
+                    <button type="submit" class="btn btn-primary w-100 py-2.5 fw-semibold mb-0">
+                        Register
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <p class="text-secondary small mb-0">Already have an account? <a href="{{ url_for('login') }}" class="text-gradient fw-semibold text-decoration-none">Login</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password show/hide toggle logic
+    document.querySelectorAll('.toggle-password-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            const icon = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        });
+    });
+
+    // Bootstrap form validation
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+});
+</script>
+{% endblock %}

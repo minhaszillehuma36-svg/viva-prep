@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+
+{% block title %}Viva Practice - {{ project.title }}{% endblock %}
+
+{% block extra_head %}
+<!-- Omitted local tab overrides to fall back to the coral/cream global style in style.css -->
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{{ url_for('dashboard') }}" class="text-gradient fw-semibold text-decoration-none d-inline-flex align-items-center gap-1 mb-3">
+            <i class="bi bi-chevron-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Project Details Card -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card premium-card card-left-accent border-0">
+            <div class="card-body p-0">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 border-bottom border-secondary border-opacity-10 pb-3">
+                    <div>
+                        <span class="badge px-2.5 py-1.5 fw-semibold small mb-2 mb-md-0 d-inline-block" style="background-color: rgba(232, 131, 108, 0.15); color: var(--accent-primary); border: 1px solid rgba(232, 131, 108, 0.25);">
+                            <i class="bi bi-tag-fill me-1"></i> {{ project.domain }}
+                        </span>
+                        <h1 class="fw-bold mt-1 mb-0" style="color: var(--text-primary);">{{ project.title }}</h1>
+                    </div>
+                    <div class="text-secondary small mt-2 mt-md-0">
+                        <i class="bi bi-calendar3 me-1"></i> Created on {{ project.created_at.strftime('%B %d, %Y') }}
+                    </div>
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-md-8">
+                        <h6 class="text-muted-custom small fw-bold text-uppercase mb-2">Project Description</h6>
+                        <p class="text-secondary mb-0" style="white-space: pre-line; line-height: 1.6;">{{ project.description }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-muted-custom small fw-bold text-uppercase mb-2">Technologies Used</h6>
+                        <div class="d-flex flex-wrap gap-1.5">
+                            {% for tech in project.tech_stack.split(',') %}
+                                <span class="badge border px-3 py-2 fs-7" style="background-color: #ECEAE6; color: var(--text-secondary); border-color: rgba(232, 131, 108, 0.15) !important;">{{ tech.strip() }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Questions Section Title -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h3 class="fw-bold mb-2" style="color: var(--text-primary);">Practice Questions</h3>
+        <p class="text-secondary">Type your answer for each question and request detailed feedback from the AI Examiner.</p>
+    </div>
+</div>
+
+<!-- Two Column Layout on Desktop -->
+<div class="row">
+    <!-- LEFT COLUMN (~70% width) -->
+    <div class="col-lg-8">
+        <!-- Category Filter Tabs (top of left column) -->
+        <div class="mb-5">
+            <div class="d-flex flex-wrap gap-3" id="category-tabs">
+                <button type="button" class="btn btn-sm btn-category-tab active" data-category="all">
+                    All <span class="badge bg-secondary bg-opacity-25 ms-1">{{ project.questions|length }}</span>
+                </button>
+                {% for category in project.questions | map(attribute='category') | unique | list %}
+                    {% if category %}
+                        {% set cat_count = project.questions | selectattr('category', 'equalto', category) | list | length %}
+                        <button type="button" class="btn btn-sm btn-category-tab" data-category="{{ category }}">
+                            {{ category }} <span class="badge bg-secondary bg-opacity-25 ms-1">{{ cat_count }}</span>
+                        </button>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        {% set current_cat = namespace(name='') %}
+        {% for question in project.questions|sort(attribute='order_index') %}
+            {% if question.category != current_cat.name %}
+                {% set current_cat.name = question.category %}
+                <h4 class="fw-bold text-gradient mt-5 mb-4 d-flex align-items-center gap-2.5 category-header" data-category="{{ current_cat.name or 'General' }}">
+                    <i class="bi bi-tag-fill fs-5"></i>
+                    <span>{{ current_cat.name or 'General' }}</span>
+                </h4>
+            {% endif %}
+            {% set latest_answer = question.answers[-1] if question.answers else None %}
+            
+            <div class="card premium-card border-0 mb-4 question-card" id="question-card-{{ question.id }}" data-category="{{ question.category or 'General' }}">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="badge px-2.5 py-1.5 fw-semibold small" style="background-color: rgba(232, 131, 108, 0.15); color: var(--accent-primary); border: 1px solid rgba(232, 131, 108, 0.25);">
+                        <i class="bi bi-tag-fill me-1"></i> {{ question.category or 'General' }}
+                    </span>
+                    <span class="text-secondary small fw-semibold">Question {{ loop.index }} of {{ project.questions|length }}</span>
+                </div>
+                
+                <h5 class="fw-bold mb-3" style="color: var(--text-primary);">{{ question.question_text }}</h5>
+                
+                <div class="mb-3">
+                    <label for="answer-{{ question.id }}" class="form-label text-muted-custom small">Your Answer</label>
+                    <textarea class="form-control" id="answer-{{ question.id }}" rows="4" placeholder="Type your spoken or written answer here..." required>{{ latest_answer.answer_text if latest_answer else '' }}</textarea>
+                    <div class="invalid-feedback">Please enter an answer before requesting feedback.</div>
+                </div>
+                
+                <div class="d-flex justify-content-end mb-1">
+                    <button type="button" class="btn btn-primary btn-feedback-trigger px-4 py-2" data-question-id="{{ question.id }}" data-project-id="{{ project.id }}">
+                        <i class="bi bi-send-fill me-1"></i> <span class="btn-text">Submit for Feedback</span>
+                    </button>
+                </div>
+                
+                <!-- Feedback Panel (Below textarea, soft background tint) -->
+                <div id="feedback-panel-{{ question.id }}" class="mt-4 p-3.5 rounded-3 {% if not latest_answer %}d-none{% endif %}" style="background-color: rgba(232, 131, 108, 0.05); border: 1px solid rgba(232, 131, 108, 0.15);">
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-10">
+                        <h6 class="fw-bold text-gradient mb-0 d-flex align-items-center gap-1.5">
+                            <i class="bi bi-sparkles text-gradient me-1"></i> <span>AI Feedback Summary</span>
+                        </h6>
+                        <div class="rating-badge-container-{{ question.id }}">
+                            {% if latest_answer %}
+                                {% set rating = latest_answer.readiness_rating %}
+                                <span class="badge-rating-{{ rating | replace(' ', '-') }} rounded-pill">{{ rating }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-check-circle-fill text-success fs-6"></i>
+                            <span class="text-success small fw-bold text-uppercase tracking-wider">Good Points</span>
+                        </div>
+                        <div class="small feedback-good-{{ question.id }}" style="line-height: 1.5; color: var(--text-primary);">
+                            {{ latest_answer.feedback_parsed.good if latest_answer else '' }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-exclamation-triangle-fill text-warning fs-6"></i>
+                            <span class="text-warning small fw-bold text-uppercase tracking-wider">Missing / Vague</span>
+                        </div>
+                        <div class="small feedback-missing-{{ question.id }}" style="line-height: 1.5; color: var(--text-primary);">
+                            {{ latest_answer.feedback_parsed.missing if latest_answer else '' }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-0">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-lightbulb-fill text-info fs-6"></i>
+                            <span class="text-info small fw-bold text-uppercase tracking-wider">How to Improve</span>
+                        </div>
+                        <div class="small feedback-improve-{{ question.id }}" style="line-height: 1.5; color: var(--text-primary);">
+                            {{ latest_answer.feedback_parsed.improve if latest_answer else '' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- RIGHT COLUMN (sticky sidebar, ~30% width) -->
+    <div class="col-lg-4 mt-4 mt-lg-0">
+        <div class="sticky-top" style="top: 100px; z-index: 10;">
+            <!-- Session Progress Card -->
+            {% set answered_count = namespace(value=0) %}
+            {% for q in project.questions %}
+                {% if q.answers %}
+                    {% set answered_count.value = answered_count.value + 1 %}
+                {% endif %}
+            {% endfor %}
+            {% set total_questions = project.questions|length %}
+            {% set progress_percentage = (answered_count.value / total_questions * 100)|round|int if total_questions > 0 else 0 %}
+            
+            <div class="card premium-card border-0 mb-4">
+                <div class="card-body p-0">
+                    <h5 class="fw-bold mb-3" style="color: var(--text-primary);">
+                        <i class="bi bi-activity text-gradient me-1"></i> Session Progress
+                    </h5>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-secondary small">Questions Answered</span>
+                        <span class="fw-bold text-primary" style="color: var(--accent-primary) !important;">
+                            <span id="answered-count">{{ answered_count.value }}</span>/<span id="total-questions">{{ total_questions }}</span>
+                        </span>
+                    </div>
+                    
+                    <div class="progress mb-2" style="height: 8px;">
+                        <div id="session-progress-bar" class="progress-bar bg-primary" role="progressbar" style="width: {{ progress_percentage }}%; background-color: var(--accent-primary) !important;" aria-valuenow="{{ progress_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    
+                    <p class="text-secondary small mb-0">Keep submitting answers to increase your completion rate!</p>
+                </div>
+            </div>
+            
+            <!-- Need a hint? / Tips Card -->
+            <div class="card premium-card border-0" style="background-color: rgba(232, 131, 108, 0.08); border: 1px solid rgba(232, 131, 108, 0.15) !important;">
+                <div class="card-body p-0">
+                    <h5 class="fw-bold mb-2" style="color: var(--text-primary);">
+                        <i class="bi bi-lightbulb-fill text-gradient me-1"></i> Need a hint?
+                    </h5>
+                    <p class="text-secondary small mb-0">
+                        Try to structure your answer using the <strong>STAR method</strong> (Situation, Task, Action, Result) or discuss the design trade-offs and alternatives you considered!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const feedbackButtons = document.querySelectorAll('.btn-feedback-trigger');
+    
+    // Track answered question IDs dynamically
+    const answeredQuestionIds = new Set([
+        {% for q in project.questions %}
+            {% if q.answers %}
+                {{ q.id }},
+            {% endif %}
+        {% endfor %}
+    ]);
+    
+    feedbackButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+            const questionId = this.getAttribute('data-question-id');
+            const projectId = this.getAttribute('data-project-id');
+            const textarea = document.getElementById(`answer-${questionId}`);
+            const feedbackPanel = document.getElementById(`feedback-panel-${questionId}`);
+            const ratingContainer = document.querySelector(`.rating-badge-container-${questionId}`);
+            
+            const btnText = this.querySelector('.btn-text');
+            const answerText = textarea.value.trim();
+            
+            // Front-end validation
+            if (!answerText) {
+                textarea.classList.add('is-invalid');
+                return;
+            } else {
+                textarea.classList.remove('is-invalid');
+            }
+            
+            // Toggle loading state on UI
+            this.disabled = true;
+            textarea.disabled = true;
+            const originalHTML = this.innerHTML;
+            this.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Evaluating...`;
+            
+            try {
+                // POST request using Fetch API
+                const response = await fetch(`/project/${projectId}/answer/${questionId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        answer: answerText
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Server responded with an error');
+                }
+                
+                const data = await response.json();
+                
+                // Populate feedback panel fields
+                document.querySelector(`.feedback-good-${questionId}`).textContent = data.good;
+                document.querySelector(`.feedback-missing-${questionId}`).textContent = data.missing;
+                document.querySelector(`.feedback-improve-${questionId}`).textContent = data.improve;
+                
+                // Update rating badge with a rounded pill style
+                ratingContainer.innerHTML = `<span class="badge-rating-${data.rating.replace(' ', '-')} rounded-pill">${data.rating}</span>`;
+                
+                // Show feedback panel
+                feedbackPanel.classList.remove('d-none');
+                
+                // Add question to answered set and update sidebar progress dynamically
+                answeredQuestionIds.add(parseInt(questionId));
+                const answeredCount = answeredQuestionIds.size;
+                const totalQuestions = {{ total_questions }};
+                document.getElementById('answered-count').textContent = answeredCount;
+                
+                const progressPercentage = Math.round((answeredCount / totalQuestions) * 100);
+                const progressBar = document.getElementById('session-progress-bar');
+                progressBar.style.width = progressPercentage + '%';
+                progressBar.setAttribute('aria-valuenow', progressPercentage);
+                
+                // Smooth scroll to the feedback panel
+                feedbackPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                
+            } catch (error) {
+                console.error('Error fetching feedback:', error);
+                alert('Failed to connect to the evaluation service. Please check your network and try again.');
+            } finally {
+                // Restore button and textarea states
+                this.disabled = false;
+                textarea.disabled = false;
+                this.innerHTML = originalHTML;
+            }
+        });
+    });
+
+    // Category Filter Tabs Logic
+    const categoryTabs = document.querySelectorAll('.btn-category-tab');
+    const questionCards = document.querySelectorAll('.question-card');
+    const categoryHeaders = document.querySelectorAll('.category-header');
+    
+    categoryTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Remove active class from all tabs, add to clicked one
+            categoryTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            const selectedCategory = this.getAttribute('data-category');
+            
+            if (selectedCategory === 'all') {
+                // Show all cards and headers
+                questionCards.forEach(card => card.classList.remove('d-none'));
+                categoryHeaders.forEach(header => header.classList.remove('d-none'));
+            } else {
+                // Show only matching cards and headers
+                questionCards.forEach(card => {
+                    if (card.getAttribute('data-category') === selectedCategory) {
+                        card.classList.remove('d-none');
+                    } else {
+                        card.classList.add('d-none');
+                    }
+                });
+                
+                categoryHeaders.forEach(header => {
+                    if (header.getAttribute('data-category') === selectedCategory) {
+                        header.classList.remove('d-none');
+                    } else {
+                        header.classList.add('d-none');
+                    }
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

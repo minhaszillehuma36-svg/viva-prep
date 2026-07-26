@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Viva Prep AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-md-5">
+        <div class="card premium-card border-0">
+            <div class="card-body p-0">
+                <div class="text-center mb-4">
+                    <!-- Logo icon in a rounded square badge -->
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-3 p-3 mb-3" style="background-color: var(--accent-primary); width: 60px; height: 60px; color: #FFFFFF; box-shadow: 0 4px 12px var(--accent-glow);">
+                        <i class="bi bi-hexagon-fill fs-3"></i>
+                    </div>
+                    <!-- App name and tagline below it -->
+                    <h2 class="card-title fw-bold mb-1" style="color: var(--text-primary);">Viva Prep AI</h2>
+                    <p class="text-secondary small">Sign in to resume practicing your thesis defense</p>
+                </div>
+                
+                <form action="{{ url_for('login') }}" method="POST" class="needs-validation" novalidate>
+                    <!-- Email field with small icon inside the input -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label text-muted-custom small">Email Address</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-envelope input-icon-left"></i>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="john@example.com" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Password field with lock icon inside and show/hide eye icon on the right -->
+                    <div class="mb-4">
+                        <label for="password" class="form-label text-muted-custom small">Password</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-lock input-icon-left"></i>
+                            <input type="password" class="form-control has-right-icon" id="password" name="password" placeholder="••••••••" required>
+                            <button type="button" class="input-icon-right toggle-password-btn" data-target="password">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Primary button full-width, solid coral -->
+                    <button type="submit" class="btn btn-primary w-100 py-2.5 fw-semibold mb-0">
+                        Sign In
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <p class="text-secondary small mb-0">Don't have an account? <a href="{{ url_for('signup') }}" class="text-gradient fw-semibold text-decoration-none">Sign up</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password show/hide toggle logic
+    document.querySelectorAll('.toggle-password-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            const icon = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        });
+    });
+
+    // Bootstrap form validation
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+});
+</script>
+{% endblock %}
