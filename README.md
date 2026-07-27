@@ -118,7 +118,7 @@ Be constructive but honest — never inflate the rating.
 **Viva Practice Session — categorized questions with filter tabs**
 ![Viva Session](Screenshot%202026-07-27%20154548.png)
 
-**AI Examiner Feedback**
+**Login**
 ![AI Feedback](Screenshot%202026-07-27%20154605.png)
 
 ---
