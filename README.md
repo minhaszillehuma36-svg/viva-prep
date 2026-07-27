@@ -112,11 +112,14 @@ Be constructive but honest — never inflate the rating.
 
 ## 📸 Screenshots
 
-*(Add your screenshots here — dashboard, new project form, viva session with categorized questions, and feedback view. At least 3 required.)*
+**Dashboard — project overview**
+![Dashboard](Screenshot%202026-07-27%20154525.png)
 
-![Dashboard](screenshots/dashboard.png)
-![Viva Session](screenshots/viva_session.png)
-![AI Feedback](screenshots/feedback.png)
+**Viva Practice Session — categorized questions with filter tabs**
+![Viva Session](Screenshot%202026-07-27%20154548.png)
+
+**AI Examiner Feedback**
+![AI Feedback](Screenshot%202026-07-27%20154605.png)
 
 ---
 
