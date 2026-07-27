@@ -105,7 +105,7 @@ Be constructive but honest — never inflate the rating.
 | Frontend | Bootstrap 5, vanilla JavaScript, custom CSS |
 | Deployment | Railway (via GitHub integration) |
 | Production server | Gunicorn |
-| Dev environment | Antigravity IDE |
+| Dev environment | VS CODE |
 | Version control | Git + GitHub |
 
 ---
